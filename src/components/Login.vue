@@ -55,7 +55,7 @@ export default {
           this.$refs.loginFromRef.validate(valid => {
               // console.log(valid);
               if(valid){
-                this.$https.post('/login',this.loginForm).then(res => {
+                this.$http.post('/login',this.loginForm).then(res => {
                   console.log(res);
                   if(res.data.meta.status == 200){
                     // console.log('登录成功');

@@ -7,3 +7,11 @@ body,
     padding: 0;
     /* background-color: #bfa; */
 }
+
+.el-breadcrumb{
+    margin-bottom: 15px;
+}
+
+.el-card{
+    box-shadow: 0 0 1 0.15;
+}

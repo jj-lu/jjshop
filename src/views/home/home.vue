@@ -87,7 +87,7 @@ export default {
       this.$http
         .get('/menus')
         .then((res) => {
-          console.log(res);
+          // console.log(res);
           if (res.data.meta.status !== 200) {
             this.$message({
               type: 'error',
@@ -95,7 +95,7 @@ export default {
             });
           }
           this.meunList = res.data.data;
-          console.log(this.meunList);
+          // console.log(this.meunList);
         })
         .catch((err) => {
           console.log(err);

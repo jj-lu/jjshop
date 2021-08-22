@@ -38,7 +38,7 @@
             <el-button type="primary" size="medium" icon="el-icon-edit" @click="showEdit(scope.row.id)"></el-button>
             <el-button type="danger" size="medium" icon="el-icon-delete" @click="deleteUser(scope.row.id)"></el-button>
             <el-tooltip class="item" effect="dark" content="权限分配" placement="top" :enterable="false">
-              <el-button type="info" size="medium" icon="el-icon-setting"></el-button>
+              <el-button type="info" size="medium" icon="el-icon-setting" @click="showRightsDialog(scope.row)"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -112,6 +112,25 @@
         <el-button type="primary" @click="editUser">确 定</el-button>
       </span>
     </el-dialog>
+
+    <el-dialog
+      title="分配权限"
+      :visible.sync="RightsDialog"
+      width="50%">
+      <div>
+        <p>当前的用户:{{userInfo.username}}</p>
+        <p>当前的角色:{{userInfo.role_name}}</p>
+        <p>
+          <el-select v-model="selectRightId" placeholder="分配角色">
+            <el-option v-for="item in rightsList" :key="item.id" :label="item.roleName" :value="item.id"></el-option>
+          </el-select>
+        </p>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="RightsDialog = false">取 消</el-button>
+        <el-button type="primary" @click="setRights()">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -141,9 +160,13 @@ export default {
         pagesize: 5
       },
       userList: [],
+      rightsList: [],
+      defaultCheckedKeys: [],
+      selectRightId: '',
       total: 0,
       addDialog: false,
       editDialog: false,
+      RightsDialog: false,
       addUserForm: {
         username: '',
         password: '',
@@ -173,7 +196,7 @@ export default {
           { validator: checkMoblie,trigger: 'blur'}
         ],
       },
-      
+      userInfo: {}
     }
   },
   methods: {
@@ -344,6 +367,35 @@ export default {
             message: err
           });          
         });
+    },
+
+    // 打开分配权限
+    async showRightsDialog(userInfo){
+      const {data: res} = await this.$http.get('roles')
+      if (res.meta.status !== 200){
+        return this.message.error(res.meta.msg)
+      }
+      this.selectRightId = ''
+      this.userInfo = userInfo
+      this.rightsList = res.data
+      this.RightsDialog = true
+    },
+
+    // 分配权限
+    async setRights() {
+      console.log(this.selectRightId);
+      if (!this.selectRightId) {
+        return this.$message.error('没有选择分配的角色')
+      }
+      console.log(this.userInfo.id);
+      const {data: res} = await this.$http.put(`users/${this.userInfo.id}/role`,{ rid:this.selectRightId })
+      if (res.meta.status !== 200){ 
+        console.log(res);
+        return this.$message.error(res.meta.msg)
+      }
+      this.$message.success('重新分配用户角色成功！');
+      this.getUserList();
+      this.RightsDialog = false;
     }
   },
   created(){
